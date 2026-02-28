@@ -6,6 +6,7 @@ import { validateNetworkOpt } from '../util/validator';
 import { Request } from '../util/request';
 import { RequestInit } from 'node-fetch';
 import { logger } from '../util/logger';
+import crypto from 'crypto';
 
 export interface DepositOptions extends NetworkOption {}
 
@@ -101,7 +102,6 @@ async function sendClaimRequest(toAddress: string) {
 }
 
 function generateHex(length: number) {
-  const crypto = require('crypto');
   return crypto
     .randomBytes(Math.ceil(length / 2))
     .toString('hex')

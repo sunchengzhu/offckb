@@ -1,11 +1,7 @@
 // Tests for security fixes
+import crypto from 'crypto';
 
 describe('generateHex', () => {
-  // Import the function by extracting it for testing
-  // Since generateHex is a private function in deposit.ts, we test it indirectly
-  // by verifying the crypto module produces valid hex output
-  const crypto = require('crypto');
-
   it('should generate cryptographically secure hex strings', () => {
     const length = 64;
     const result = crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
