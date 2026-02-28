@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import semver from 'semver';
@@ -7,7 +7,6 @@ import AdmZip from 'adm-zip';
 import * as tar from 'tar';
 import { Request } from '../util/request';
 import { getCKBBinaryInstallPath, getCKBBinaryPath, readSettings } from '../cfg/setting';
-import { encodeBinPathForTerminal } from '../util/encoding';
 import { logger } from '../util/logger';
 
 export async function installCKBBinary(version: string) {
@@ -115,7 +114,7 @@ export async function decompressTarGzAsync(tarballPath: string, destinationDir: 
 
 export function getVersionFromBinary(binPath: string): string | null {
   try {
-    const versionOutput = execSync(`${encodeBinPathForTerminal(binPath)} --version`, {
+    const versionOutput = execFileSync(binPath, ['--version'], {
       encoding: 'utf-8',
     });
 

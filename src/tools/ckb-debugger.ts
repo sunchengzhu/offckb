@@ -71,8 +71,13 @@ export class CKBDebugger {
         process.exit(1);
       }
     } else {
-      const command = `ckb-debugger ${args.join(' ')}`;
-      execSync(command, { stdio: 'inherit' });
+      const result = spawnSync('ckb-debugger', args, { stdio: 'inherit' });
+      if (result.error) {
+        throw result.error;
+      }
+      if (result.status !== 0) {
+        process.exit(result.status ?? 1);
+      }
     }
   }
 
