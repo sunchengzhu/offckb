@@ -131,6 +131,9 @@ export function getCKBBinaryPath(version: string) {
 
 function deepMerge(target: any, source: any): any {
   for (const key in source) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue;
+    }
     if (source[key] && typeof source[key] === 'object') {
       if (!target[key]) {
         target[key] = {};

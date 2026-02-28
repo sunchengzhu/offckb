@@ -1,8 +1,7 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { initChainIfNeeded } from '../node/init-chain';
 import { installCKBBinary } from '../node/install';
 import { getCKBBinaryPath, readSettings } from '../cfg/setting';
-import { encodeBinPathForTerminal } from '../util/encoding';
 import { createRPCProxy } from '../tools/rpc-proxy';
 import { Network } from '../type/base';
 import { logger } from '../util/logger';
@@ -33,24 +32,22 @@ export function startNode({ version, network = Network.devnet, binaryPath }: Nod
 export async function nodeDevnet({ version, binaryPath }: NodeProp) {
   const settings = readSettings();
   const ckbVersion = version || settings.bins.defaultCKBVersion;
-  let ckbBinPath = '';
+  let ckbBinRawPath = '';
 
   if (binaryPath) {
-    ckbBinPath = encodeBinPathForTerminal(binaryPath);
-    logger.info(`Using custom CKB binary path: ${ckbBinPath}`);
+    ckbBinRawPath = binaryPath;
+    logger.info(`Using custom CKB binary path: ${ckbBinRawPath}`);
   } else {
     await installCKBBinary(ckbVersion);
-    ckbBinPath = encodeBinPathForTerminal(getCKBBinaryPath(ckbVersion));
+    ckbBinRawPath = getCKBBinaryPath(ckbVersion);
   }
   await initChainIfNeeded();
-  const devnetConfigPath = encodeBinPathForTerminal(settings.devnet.configPath);
+  const devnetConfigRawPath = settings.devnet.configPath;
 
-  const ckbCmd = `${ckbBinPath} run -C ${devnetConfigPath}`;
-  const minerCmd = `${ckbBinPath} miner -C ${devnetConfigPath}`;
   logger.info(`Launching CKB devnet Node...`);
   try {
     // Run first command
-    const ckbProcess = exec(ckbCmd);
+    const ckbProcess = execFile(ckbBinRawPath, ['run', '-C', devnetConfigRawPath]);
     // Log first command's output
     ckbProcess.stdout?.on('data', (data) => {
       logger.info(['CKB:', data.toString()]);
@@ -64,7 +61,7 @@ export async function nodeDevnet({ version, binaryPath }: NodeProp) {
     setTimeout(async () => {
       try {
         // Run second command
-        const minerProcess = exec(minerCmd);
+        const minerProcess = execFile(ckbBinRawPath, ['miner', '-C', devnetConfigRawPath]);
         minerProcess.stdout?.on('data', (data) => {
           logger.info(['CKB-Miner:', data.toString()]);
         });
